@@ -23,7 +23,9 @@ panel.yins.win/stock（公开数据源）
    │  scripts/scrape-stock.mjs（Playwright 渲染采集，像用户一样点击读取）
    ▼
 data/stock-data.json（提交进仓库）
-   │  GitHub Actions 每 6 小时自动同步（.github/workflows/refresh-stock-data.yml）
+   │  自动同步（二选一）：
+   │  ① 本机定时任务每 6 小时运行采集并推送（当前已启用）
+   │  ② GitHub Action：把 docs/refresh-stock-data.yml 复制到 .github/workflows/ 即可
    ▼
 站点读取：优先 raw.githubusercontent.com 最新版（30 分钟再验证），失败回退构建内副本
 ```
