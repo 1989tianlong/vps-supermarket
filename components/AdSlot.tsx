@@ -3,9 +3,17 @@ import { Megaphone } from "lucide-react";
 import { site, type AdSlotKey } from "@/config/site";
 
 /**
- * 广告位组件：config/site.ts → ads.enabled + ads.slots[slot]
- * 填入广告联盟（AdSense / 联盟推广等）的 HTML 片段后自动替换占位符。
+ * 广告位组件，三级降级：
+ * 1. ads.slots[slot] 有自定义 HTML（联盟代码）→ 直接渲染
+ * 2. adsense 已配置（publisherId + 单元 ID）→ 自动渲染 AdSense 展示单元
+ * 3. 都没有 → "广告位招租" 占位符（可直接用于招商）
  */
+declare global {
+  interface Window {
+    adsbygoogle?: unknown[];
+  }
+}
+
 export function AdSlot({
   slot,
   label,
@@ -17,16 +25,38 @@ export function AdSlot({
   h?: number;
   className?: string;
 }) {
-  const code = site.ads.enabled ? site.ads.slots[slot] : "";
-  if (code) {
+  const custom = site.ads.enabled ? site.ads.slots[slot] : "";
+  if (custom) {
     return (
       <div
         className={`overflow-hidden ${className}`}
         data-ad-slot={slot}
-        dangerouslySetInnerHTML={{ __html: code }}
+        dangerouslySetInnerHTML={{ __html: custom }}
       />
     );
   }
+
+  const adSlotId = site.adsense.slots[slot];
+  if (site.adsense.enabled && site.adsense.publisherId && adSlotId) {
+    return (
+      <div className={`overflow-hidden ${className}`} data-ad-slot={slot}>
+        <ins
+          className="adsbygoogle block"
+          style={{ display: "block", minHeight: h }}
+          data-ad-client={site.adsense.publisherId}
+          data-ad-slot={adSlotId}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "(adsbygoogle=window.adsbygoogle||[]).push({});",
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={`flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-line bg-card/60 px-3 text-muted ${className}`}

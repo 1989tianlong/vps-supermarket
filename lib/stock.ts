@@ -49,16 +49,26 @@ import { site } from "@/config/site";
 
 const REMOTE_URL = `${site.repoRawUrl}/main/data/stock-data.json`;
 
+// 数据包 > 2MB 会触发 Next 数据缓存上限警告，改用模块级 30 分钟缓存
+const g = globalThis as unknown as {
+  __vpsmStock?: { t: number; data: StockData };
+};
+
 /**
- * 服务端获取采集数据：优先取 GitHub 上的最新版（每 30 分钟再验证），
+ * 服务端获取采集数据：优先取 GitHub 上的最新版（实例内缓存 30 分钟），
  * 失败时回退到构建时打包的本地副本。
  */
 export async function getStockData(): Promise<StockData | null> {
+  const cached = g.__vpsmStock;
+  if (cached && Date.now() - cached.t < 1800_000) return cached.data;
   try {
-    const r = await fetch(REMOTE_URL, { next: { revalidate: 1800 } });
+    const r = await fetch(REMOTE_URL, { cache: "no-store" });
     if (r.ok) {
       const j = (await r.json()) as StockData;
-      if (j?.providers?.length) return j;
+      if (j?.providers?.length) {
+        g.__vpsmStock = { t: Date.now(), data: j };
+        return j;
+      }
     }
   } catch {
     /* 回退到本地 */

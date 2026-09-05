@@ -64,6 +64,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        {site.adsense.publisherId && (
+          <>
+            <meta name="google-adsense-account" content={site.adsense.publisherId} />
+            <script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${site.adsense.publisherId}`}
+              crossOrigin="anonymous"
+            />
+          </>
+        )}
       </head>
       <body>
         {children}

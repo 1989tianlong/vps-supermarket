@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import type { StockData, StockProduct, StockProvider } from "@/lib/stock";
 import { vendorLink } from "@/lib/vendor-links";
+import { monthlyEquivalent } from "@/lib/format";
 import { SettingsModal } from "./SettingsModal";
 import { toast } from "./Toast";
 
@@ -169,6 +170,9 @@ function ProductRow({
 
       <td className="min-w-[150px] px-3 py-3">
         <SelectBox options={p.cycles} title="选择付费周期" />
+        <div className="num mt-1 text-[10.5px] text-primary/90">
+          {monthlyEquivalent(p.cycles[0]?.label)}
+        </div>
       </td>
 
       <td className="min-w-[200px] px-3 py-3 text-[12px] leading-relaxed text-muted">
@@ -301,6 +305,18 @@ export function MarketBoard({
 
   const maxClicks = Math.max(1, ...pool.map((v) => v.buyClicks));
 
+  // KPI：全站统计
+  const kpi = useMemo(() => {
+    const all = Object.values(data?.stock ?? {}).flatMap((s) => s.products);
+    const inStock = all.filter((p) => p.inStock).length;
+    return {
+      providers: providers.length,
+      products: all.length,
+      inStock,
+      fetchedAt: data?.fetchedAt ?? "",
+    };
+  }, [data, providers]);
+
   const refresh = () => {
     if (refreshing) return;
     setRefreshing(true);
@@ -330,9 +346,72 @@ export function MarketBoard({
   );
 
   return (
-    <div className="mx-auto grid max-w-[1600px] items-start gap-4 px-3 pb-10 sm:px-5 xl:grid-cols-[250px,minmax(0,1fr)]">
+    <div className="mx-auto max-w-[1600px] px-3 pb-10 sm:px-5">
+      {/* KPI 统计条 */}
+      <div className="mb-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        {[
+          { label: "收录厂商", value: String(kpi.providers), suffix: "家" },
+          { label: "在售产品", value: String(kpi.products), suffix: "个" },
+          { label: "其中有货", value: String(kpi.inStock), suffix: "个" },
+          {
+            label: "数据更新",
+            value: kpi.fetchedAt
+              ? new Date(kpi.fetchedAt).toLocaleString("zh-CN", {
+                  hour12: false,
+                  month: "numeric",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "—",
+            suffix: "",
+          },
+        ].map((k) => (
+          <div key={k.label} className="rounded-xl border border-line bg-card px-4 py-3">
+            <div className="text-[11px] text-muted">{k.label}</div>
+            <div className="num mt-0.5 text-[19px] font-bold tracking-tight">
+              {k.value}
+              <span className="ml-1 text-[11px] font-normal text-muted">{k.suffix}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 移动端厂商横滑条 */}
+      <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1 lg:hidden">
+        <button
+          onClick={() => setShowBlacklist((s) => !s)}
+          className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
+            showBlacklist ? "border-bad bg-bad text-white" : "border-bad/40 bg-card text-bad"
+          }`}
+        >
+          黑名单 {data?.blacklist?.length ?? 0}
+        </button>
+        {(showBlacklist
+          ? (data?.blacklist ?? []).map((b) => ({ name: b.name }))
+          : [...pool].sort((a, b) => b.buyClicks - a.buyClicks).slice(0, 20)
+        ).map((v) => (
+          <button
+            key={v.name}
+            onClick={() => {
+              setProviderName(v.name);
+              setProductQuery("");
+              setTagFilter("");
+            }}
+            className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
+              providerName === v.name
+                ? "border-primary bg-primary font-semibold text-primary-fg"
+                : "border-line bg-card text-muted"
+            }`}
+          >
+            {v.name}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid items-start gap-4 xl:grid-cols-[250px,minmax(0,1fr)]">
       {/* ── 厂商榜 ── */}
-      <aside className="flex h-fit flex-col overflow-hidden rounded-2xl border border-line bg-card lg:sticky lg:top-[72px]">
+      <aside className="hidden h-fit flex-col overflow-hidden rounded-2xl border border-line bg-card lg:sticky lg:top-[72px] lg:flex">
         <div className="flex items-center gap-2 border-b border-line px-3.5 py-2.5">
           <Store size={14} className="text-primary" />
           <b className="text-[13px]">厂商热度榜</b>
@@ -704,7 +783,8 @@ export function MarketBoard({
             })}
           </div>
         )}
-      </main>
+        </main>
+      </div>
 
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>

@@ -1,7 +1,7 @@
 export const site = {
   name: "VPS超市",
   tagline: "VPS 库存监控 / 优惠推荐 / 有货提醒",
-  version: "2.0.0",
+  version: "2.1.0",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ??
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -19,16 +19,34 @@ export const site = {
     group: "",
     channel: "",
   },
+  /**
+   * Google AdSense 接入：
+   * 1. 在 https://adsense.google.com 添加站点并通过审核
+   * 2. 把「发布商 ID」（ca-pub- 开头）填到 publisherId
+   * 3. 在 AdSense 后台按广告单元创建展示广告，把单元 ID（纯数字）填到 slots
+   * 4. enabled 改为 true —— 全站广告位与 /ads.txt 自动生效
+   */
+  adsense: {
+    enabled: false,
+    publisherId: "", // 例: "ca-pub-1234567890123456"
+    slots: {
+      header: "", // 页头横幅广告单元 ID（数字）
+      leftRail: "",
+      rightRail: "",
+      inline: "",
+      footer: "",
+    },
+  },
+  /** 兼容旧字段：联盟自定义 HTML 代码（优先级高于 AdSense 单元） */
   ads: {
-    // 统一开关：接入广告联盟（Google AdSense / 联盟推广等）时置为 true 并填入广告代码
     enabled: false,
     contact: "mailto:ads@yins.win",
     slots: {
-      header: "", // 页头横幅
-      leftRail: "", // 左侧竖栏（多块堆叠）
-      rightRail: "", // 右侧竖栏
-      inline: "", // 信息流嵌入
-      footer: "", // 页脚横幅
+      header: "",
+      leftRail: "",
+      rightRail: "",
+      inline: "",
+      footer: "",
     },
   },
 };

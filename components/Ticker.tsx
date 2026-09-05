@@ -11,11 +11,21 @@ export function Ticker({ segments }: { segments: string[] }) {
     const el = trackRef.current;
     if (!el) return;
     // 轨道内是两份相同内容，位移距离为一半宽度
-    const half = el.scrollWidth / 2;
-    if (half > 0) {
-      const seconds = Math.max(60, Math.round(half / 40));
-      el.style.animationDuration = `${seconds}s`;
-    }
+    const measure = () => {
+      const half = el.scrollWidth / 2;
+      if (half > 0) {
+        const seconds = Math.max(60, Math.round(half / 40));
+        el.style.animationDuration = `${seconds}s`;
+      }
+    };
+    measure();
+    // 字体加载 / 窗口缩放后重新测量
+    const t = setTimeout(measure, 1200);
+    window.addEventListener("resize", measure);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", measure);
+    };
   }, [segments]);
 
   if (!segments.length) return null;

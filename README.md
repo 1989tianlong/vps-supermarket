@@ -11,6 +11,9 @@ VPS 库存监控 / 优惠推荐 / 有货提醒 —— 聚合多厂商 VPS 产品
 - **黑名单警示**：风险厂商公示与交易警示
 - **监控设置**：探测频率、到货提醒、提示音、自动刷新偏好
 - **IP 家宽检测**（/ip-check）：判断任意 IP 为家庭宽带 / 机房云 / 代理 VPN / Tor 出口，聚合 ip-api.com、ipwho.is 与 Tor 出口列表 + 云厂商 ASN 表，支持"检测我的 IP"
+- **开发者工具**（/tools）：带宽 ↔ 月流量换算、VPS 周期月均计算器、Unix 时间戳转换
+- **开放数据 API**（/api/stock）：库存数据免费 JSON 接口（CORS 全开，缓存 30 分钟）
+- **价格月均换算**：价格列自动显示 ≈ x.xx/月，年付/两年付与月付公平对比
 - **访问统计**：总访问 / 今日 / 在线数（`/api/stats` 心跳，真实计数从 0 起）
 - **3 套主题**：深色（默认）/ 浅色 / 跟随系统
 - **广告位预留**：页头横幅、两侧竖栏（等同原站 rail）、信息流、页脚，`config/site.ts` 一处配置全站生效
@@ -51,23 +54,30 @@ npm run build && npm start
 
 ## 挂广告
 
-编辑 `config/site.ts`：
+### Google AdSense（推荐）
+
+1. 在 [adsense.google.com](https://adsense.google.com) 添加站点 `https://vps-supermarket.vercel.app` 并等待审核
+2. 编辑 `config/site.ts`：
 
 ```ts
-ads: {
-  enabled: true,                    // 打开总开关
-  contact: "mailto:you@example.com",
+adsense: {
+  enabled: true,
+  publisherId: "ca-pub-XXXXXXXXXXXXXXXX",  // 你的发布商 ID
   slots: {
-    header: `<script ...></script>`,   // 页头横幅
-    leftRail: `<ins ...></ins>`,       // 左侧竖栏
-    rightRail: ``,
-    inline: ``,
-    footer: ``,
+    header: "1111111111",   // 各广告单元 ID（AdSense 后台创建展示广告后获得）
+    leftRail: "2222222222",
+    rightRail: "3333333333",
+    inline: "",
+    footer: "4444444444",
   },
 },
 ```
 
-广告代码自动替换占位符；未开启时占位符展示"广告位招租"，可直接用于招商。
+3. 重新部署。加载脚本、`google-adsense-account` 验证 meta、各广告位单元与 **/ads.txt** 全部自动生效。
+
+### 联盟直投 / 自定义代码
+
+`ads.slots` 中粘贴任意联盟 HTML 代码（优先级高于 AdSense）。未开启时广告位显示"招租"占位符，可直接用于招商。
 
 ## 部署
 
