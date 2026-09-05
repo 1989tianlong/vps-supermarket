@@ -67,10 +67,11 @@ function SelectBox({
 }) {
   if (!options.length) return <span className="text-muted">—</span>;
   return (
-    <div className="relative inline-block max-w-full">
+    <div className="relative inline-block max-w-full shrink-0">
       <select
         title={title}
-        className="num w-full max-w-[190px] cursor-pointer appearance-none truncate rounded-lg border border-line bg-bg py-1.5 pl-2.5 pr-7 text-[12.5px] outline-none transition-colors hover:border-primary focus:border-primary"
+        className="num w-full min-w-[128px] max-w-[220px] cursor-pointer appearance-none truncate rounded-lg border border-line bg-bg py-1.5 pl-2.5 pr-7 text-[12.5px] outline-none transition-colors hover:border-primary focus:border-primary"
+        aria-label={title}
       >
         {options.map((o) => (
           <option key={o.value + o.label} value={o.value}>
@@ -166,7 +167,7 @@ function ProductRow({
         </div>
       </td>
 
-      <td className="px-3 py-3">
+      <td className="min-w-[150px] px-3 py-3">
         <SelectBox options={p.cycles} title="选择付费周期" />
       </td>
 
@@ -587,7 +588,7 @@ export function MarketBoard({
           </div>
         ) : view === "table" ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px] text-left">
+            <table className="w-full min-w-[1024px] text-left">
               <thead>
                 <tr className="whitespace-nowrap border-b border-line text-[11.5px] text-muted">
                   <th className="px-3 py-2.5 font-medium">
