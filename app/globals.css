@@ -85,7 +85,8 @@ body {
 .marquee-track {
   display: inline-flex;
   white-space: nowrap;
-  animation: marquee 70s linear infinite;
+  /* 实际时长由 Ticker 组件按内容宽度动态设置（约 40px/秒），此为回退值 */
+  animation: marquee 150s linear infinite;
 }
 .marquee:hover .marquee-track {
   animation-play-state: paused;
