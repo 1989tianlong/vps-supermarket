@@ -2,57 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── 主题变量：樱花(默认) / 明亮 / 夜间 ─────────────────── */
+/* ── 设计语言：石墨蓝黑 × 翡翠绿 · 数据终端风 ─────────────── */
 :root,
-.theme-sakura {
-  --bg: #faf4f7;
-  --bg-soft: #f4e8ee;
-  --card: #ffffff;
-  --fg: #43333c;
-  --muted: #9a8290;
-  --line: #eedbe5;
-  --accent: #fdf0f6;
-  --primary: #d6487f;
-  --primary-fg: #ffffff;
-  --primary-soft: #fadbe9;
-  --ok: #10b981;
-  --bad: #ef4444;
-  --rank: #f97316;
-  color-scheme: light;
+.theme-dark {
+  --bg: #0a0e13;
+  --bg-soft: #10161f;
+  --card: #0e141c;
+  --fg: #e6ecf2;
+  --muted: #8794a3;
+  --line: #1c2530;
+  --accent: #122019;
+  --primary: #34d399;
+  --primary-fg: #04160e;
+  --primary-soft: rgba(52, 211, 153, 0.12);
+  --ok: #34d399;
+  --bad: #f87171;
+  --rank: #fbbf24;
+  color-scheme: dark;
 }
 
 .theme-light {
-  --bg: #f4f5f7;
-  --bg-soft: #ebecf0;
+  --bg: #f6f7f6;
+  --bg-soft: #ecefee;
   --card: #ffffff;
-  --fg: #20242b;
-  --muted: #6d7683;
-  --line: #e3e6eb;
-  --accent: #edf3ff;
-  --primary: #2f6bff;
+  --fg: #14201a;
+  --muted: #68766f;
+  --line: #e0e6e2;
+  --accent: #e5f4ec;
+  --primary: #059669;
   --primary-fg: #ffffff;
-  --primary-soft: #dfe9ff;
-  --ok: #10b981;
-  --bad: #ef4444;
-  --rank: #f97316;
+  --primary-soft: rgba(5, 150, 105, 0.1);
+  --ok: #059669;
+  --bad: #dc2626;
+  --rank: #d97706;
   color-scheme: light;
-}
-
-.theme-dark {
-  --bg: #0f1218;
-  --bg-soft: #181d27;
-  --card: #141922;
-  --fg: #e3e7ee;
-  --muted: #8b94a5;
-  --line: #242b39;
-  --accent: #1a2334;
-  --primary: #5b93ff;
-  --primary-fg: #ffffff;
-  --primary-soft: #1e2c4d;
-  --ok: #34d399;
-  --bad: #f87171;
-  --rank: #fb923c;
-  color-scheme: dark;
 }
 
 body {
@@ -69,6 +52,8 @@ body {
     "Noto Sans SC",
     sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-image: radial-gradient(circle at 50% -20%, var(--primary-soft), transparent 55%);
+  background-attachment: fixed;
 }
 
 ::selection {
@@ -91,11 +76,16 @@ body {
   background: transparent;
 }
 
-/* ── 顶部滚动公告 ─────────────────────────────────────── */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+}
+
+/* ── 滚动公告 ─────────────────────────────────────────── */
 .marquee-track {
   display: inline-flex;
   white-space: nowrap;
-  animation: marquee 60s linear infinite;
+  animation: marquee 70s linear infinite;
 }
 .marquee:hover .marquee-track {
   animation-play-state: paused;
@@ -121,5 +111,20 @@ body {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+/* ── 面板进场 ─────────────────────────────────────────── */
+.fade-up {
+  animation: fade-up 0.35s ease-out both;
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

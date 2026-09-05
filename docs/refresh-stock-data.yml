@@ -1,0 +1,40 @@
+name: refresh-stock-data
+
+# 每 6 小时自动同步一次 VPS 库存数据（真实数据管道）
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Scrape stock data
+        run: node scripts/scrape-stock.mjs
+
+      - name: Commit data if changed
+        run: |
+          git config user.name "stock-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/stock-data.json
+          if git diff --cached --quiet; then
+            echo "数据无变化"
+          else
+            git commit -m "chore: sync stock data $(date -u +%FT%TZ)"
+            git push
+          fi

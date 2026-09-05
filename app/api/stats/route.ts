@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { site } from "@/config/site";
 
 type Stats = {
   total: number;
@@ -10,11 +9,12 @@ type Stats = {
 
 const g = globalThis as unknown as { __vpsmStats?: Stats };
 
+// 真实计数：从 0 开始累计（部署重置后自然重新累计）
 if (!g.__vpsmStats) {
   g.__vpsmStats = {
-    total: site.statsSeed.total,
+    total: 0,
     day: new Date().toISOString().slice(0, 10),
-    today: site.statsSeed.today,
+    today: 0,
     sessions: new Map(),
   };
 }

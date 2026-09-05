@@ -6,7 +6,6 @@ const config: Config = {
     "./components/**/*.{ts,tsx}",
     "./lib/**/*.{ts,tsx}",
   ],
-  darkMode: ["class", ".theme-dark"],
   theme: {
     extend: {
       colors: {
@@ -25,15 +24,6 @@ const config: Config = {
         ok: "var(--ok)",
         bad: "var(--bad)",
         rank: "var(--rank)",
-      },
-      keyframes: {
-        marquee: {
-          "0%": { transform: "translateX(0)" },
-          "100%": { transform: "translateX(-50%)" },
-        },
-      },
-      animation: {
-        marquee: "marquee 60s linear infinite",
       },
     },
   },

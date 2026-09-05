@@ -29,14 +29,18 @@ export function AdSlot({
   }
   return (
     <div
-      className={`flex flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-line bg-soft/50 px-4 text-muted ${className}`}
+      className={`flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-line bg-card/60 px-3 text-muted ${className}`}
       style={{ minHeight: h }}
       data-ad-slot={slot}
     >
-      <Megaphone size={16} className="opacity-40" />
-      <div className="text-[11.5px]">广告位招租 · {label}</div>
-      <Link href="/advertise" className="text-[11px] text-primary hover:underline">
-        了解广告合作 →
+      <Megaphone size={15} className="opacity-40" />
+      <div className="text-center text-[11px] leading-relaxed">
+        广告位招租
+        <br />
+        <span className="opacity-70">{label}</span>
+      </div>
+      <Link href="/advertise" className="text-[10.5px] text-primary hover:underline">
+        广告合作 →
       </Link>
     </div>
   );
