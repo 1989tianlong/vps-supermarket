@@ -95,7 +95,7 @@ const EXTRACT_LIST = () =>
       };
     })
     .filter(
-      (v): v is { name: string; buyClicks: number; count: number } =>
+      (v) =>
         !!v &&
         v.name &&
         !v.name.includes("黑名单") &&
