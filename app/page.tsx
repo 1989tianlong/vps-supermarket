@@ -44,12 +44,24 @@ export default async function Home() {
             （每 6 小时同步）· 购买前请以厂商官网为准
           </p>
           <p>
-            <Link href="/advertise" className="text-primary hover:underline">
-              广告合作
+            <Link href="/guide" className="text-primary hover:underline">
+              选购指南
             </Link>{" "}
             ·{" "}
-            <Link href="/ip-check" className="text-primary hover:underline">
-              IP家宽检测
+            <Link href="/about" className="text-primary hover:underline">
+              关于我们
+            </Link>{" "}
+            ·{" "}
+            <Link href="/privacy" className="text-primary hover:underline">
+              隐私政策
+            </Link>{" "}
+            ·{" "}
+            <Link href="/tools" className="text-primary hover:underline">
+              开发者工具
+            </Link>{" "}
+            ·{" "}
+            <Link href="/advertise" className="text-primary hover:underline">
+              广告合作
             </Link>
           </p>
         </footer>
