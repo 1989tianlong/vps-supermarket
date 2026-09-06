@@ -420,16 +420,18 @@ export function MarketBoard({
             {showBlacklist ? data?.blacklist?.length ?? 0 : pool.length}
           </span>
         </div>
-        <div className="p-2.5">
-          <div className="relative">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
-            <input
-              value={vendorQuery}
-              onChange={(e) => setVendorQuery(e.target.value)}
-              placeholder="搜索厂商..."
-              className="w-full rounded-lg border border-line bg-bg py-2 pl-8 pr-3 text-[13px] outline-none transition-colors placeholder:text-muted/60 focus:border-primary"
-            />
-          </div>
+          <div className="p-2.5">
+            <div className="relative">
+              <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
+              <input
+                value={vendorQuery}
+                onChange={(e) => setVendorQuery(e.target.value)}
+                placeholder="搜索厂商..."
+                className="w-full rounded-lg border border-line bg-bg py-2 pl-8 pr-3 text-[13px] outline-none transition-colors placeholder:text-muted/60 focus:border-primary"
+              />
+            </div>
+            {/* 搜索框下方推广位 */}
+            <AdSlot slot="vendorPanel" label="厂商推广" h={0} className="mt-2" />
           <button
             onClick={() => setShowBlacklist((s) => !s)}
             className={`mt-2 flex w-full items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12.5px] font-semibold transition-colors ${
@@ -521,9 +523,6 @@ export function MarketBoard({
             </div>
           )}
         </div>
-          <div className="border-t border-line p-3">
-            <AdSlot slot="leftRail" label="侧栏推广 300×250" h={140} />
-          </div>
         </aside>
 
       {/* ── 产品库存 ── */}

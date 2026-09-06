@@ -17,13 +17,13 @@ export default async function Home() {
       <SiteHeader />
 
       <div className="mx-auto max-w-[1600px] space-y-3 px-3 py-4 sm:px-5">
+        {/* 首页最上方推广位 */}
+        <AdSlot slot="top" variant="strip" label="首页顶部横条" />
+
         <Ticker segments={segments} />
-        <AdSlot slot="header" label="页头横幅 728×90" h={76} />
+        <AdSlot slot="header" label="页头横幅 728×90 / 响应式" h={76} />
 
         <MarketBoard data={data} deepLinks={deepLinks} />
-
-        {/* 看板下方推广条 */}
-        <AdSlot slot="rightRail" label="推广位 970×90 / 响应式" h={80} />
 
         <AdSlot slot="footer" label="页脚横幅 970×90" h={76} />
 

@@ -46,14 +46,14 @@ export const site = {
     enabled: true,
     items: [
       {
-        slot: "leftRail",
+        slot: "top",
         brand: "搬瓦工 BandwagonHost",
         desc: "老牌 CN2 GIA 优化线路，三网回程好，稳定性口碑佳",
         url: "https://bandwagonhost.com/aff.php?aff=84179",
         cta: "查看优惠",
       },
       {
-        slot: "rightRail",
+        slot: "vendorPanel",
         brand: "RackNerd",
         desc: "超低价年付 KVM，轻量应用性价比之选",
         url: "https://my.racknerd.com/aff.php?aff=21143",
