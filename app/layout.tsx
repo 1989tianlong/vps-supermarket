@@ -57,6 +57,14 @@ const jsonLd = JSON.stringify({
   url: site.url,
   description: "聚合多厂商 VPS 实时库存监控面板，支持线路筛选、有货提醒与 IP 家宽检测。",
   inLanguage: "zh-CN",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${site.url}/vendors?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

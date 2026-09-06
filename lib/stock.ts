@@ -96,3 +96,19 @@ export function parseTicker(ticker: string): { segments: string[] } {
     .filter((s) => s.length > 8);
   return { segments };
 }
+
+/** 为厂商名生成稳定且 URL 友好的 slug（同名自动去重） */
+export function makeVendorSlugMap(names: string[]): Map<string, string> {
+  const used = new Set<string>();
+  const map = new Map<string, string>();
+  names.forEach((name, i) => {
+    let s = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (!s) s = `v${i + 1}`;
+    const base = s;
+    let n = 2;
+    while (used.has(s)) s = `${base}-${n++}`;
+    used.add(s);
+    map.set(name, s);
+  });
+  return map;
+}

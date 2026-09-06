@@ -41,6 +41,10 @@ export default async function Home() {
             （每 6 小时同步）· 购买前请以厂商官网为准
           </p>
           <p>
+            <Link href="/vendors" className="text-primary hover:underline">
+              厂商大全
+            </Link>{" "}
+            ·{" "}
             <Link href="/guide" className="text-primary hover:underline">
               选购指南
             </Link>{" "}
