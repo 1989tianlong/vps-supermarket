@@ -43,13 +43,13 @@ export const site = {
    * 注意：url 里还留着 YOUR_AFF_ID 时不会上线（避免挂死链）。
    */
   affiliate: {
-    enabled: false,
+    enabled: true,
     items: [
       {
         slot: "leftRail",
         brand: "搬瓦工 BandwagonHost",
         desc: "老牌 CN2 GIA 优化线路，三网回程好，稳定性口碑佳",
-        url: "https://bandwagonhost.com/aff.php?aff=YOUR_AFF_ID",
+        url: "https://bandwagonhost.com/aff.php?aff=84179",
         cta: "查看优惠",
       },
       {
