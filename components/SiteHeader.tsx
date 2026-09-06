@@ -9,7 +9,6 @@ import {
   Sun,
   Moon,
   Monitor,
-  Github,
   Send,
   Users,
   Rss,
@@ -160,15 +159,6 @@ export function SiteHeader() {
                 <Send size={16} />
               </a>
             )}
-            <a
-              href="https://github.com/1989tianlong/vps-supermarket"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="GitHub"
-              className="hidden rounded-lg p-2 text-muted hover:bg-soft hover:text-fg sm:block"
-            >
-              <Github size={16} />
-            </a>
 
             <div className="flex items-center rounded-full border border-line bg-bg p-0.5">
               {THEMES.map((t) => {
