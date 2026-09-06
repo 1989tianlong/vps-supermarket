@@ -37,10 +37,13 @@ export const site = {
       footer: "",
     },
   },
-  /** 兼容旧字段：联盟自定义 HTML 代码（优先级高于 AdSense 单元） */
+  /** 兼容旧字段：联盟自定义 HTML 代码（优先级高于 AdSense 单元）
+   *  示例（把 YOUR_AFF_ID 换成你的联盟 ID）：
+   *  header: `<a href="https://bandwagonhost.com/aff.php?aff=YOUR_AFF_ID" target="_blank" rel="nofollow noopener"><img src="https://banner图地址" width="728" height="90" alt="ad"></a>`
+   */
   ads: {
     enabled: false,
-    contact: "mailto:ads@yins.win",
+    contact: "mailto:ytlhack@gmail.com",
     slots: {
       header: "",
       leftRail: "",
