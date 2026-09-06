@@ -56,7 +56,7 @@ export const site = {
         slot: "rightRail",
         brand: "RackNerd",
         desc: "超低价年付 KVM，轻量应用性价比之选",
-        url: "https://www.racknerd.com/clients/aff.php?aff=YOUR_AFF_ID",
+        url: "https://my.racknerd.com/aff.php?aff=21143",
         cta: "查看优惠",
       },
     ],
