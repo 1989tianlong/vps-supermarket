@@ -4,9 +4,9 @@ export const site = {
   version: "2.1.0",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL && process.env.USE_VERCEL_APP_URL === "1"
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://vps-supermarket.vercel.app"),
+      : "https://vps.omniquest.fun"),
   /** 采集数据所在的 GitHub 仓库（用于站点拉取最新数据） */
   repoRawUrl:
     process.env.NEXT_PUBLIC_REPO_RAW_URL ??
