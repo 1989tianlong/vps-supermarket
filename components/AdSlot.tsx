@@ -40,11 +40,8 @@ export function AdSlot({
           {affItems.map((i) => (
             <div
               key={i.url}
-              className="relative flex flex-col gap-2 overflow-hidden rounded-xl border border-primary/40 bg-primary-soft px-4 py-3 sm:flex-row sm:items-center"
+              className="flex flex-col gap-2 overflow-hidden rounded-xl border border-primary/40 bg-primary-soft px-4 py-3 sm:flex-row sm:items-center"
             >
-              <span className="absolute right-2.5 top-1.5 text-[9.5px] uppercase tracking-wider text-muted/50">
-                广告
-              </span>
               <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-primary-fg">
                 优惠
               </span>
@@ -68,11 +65,8 @@ export function AdSlot({
         {affItems.map((i) => (
           <div
             key={i.url}
-            className="relative overflow-hidden rounded-xl border border-primary/40 bg-card p-4 transition-colors hover:border-primary/60"
+            className="overflow-hidden rounded-xl border border-primary/40 bg-card p-4 transition-colors hover:border-primary/60"
           >
-            <span className="absolute right-2.5 top-2 text-[9.5px] uppercase tracking-wider text-muted/60">
-              广告
-            </span>
             <b className="text-[13.5px]">{i.brand}</b>
             <p className="mt-1 text-[11.5px] leading-relaxed text-muted">{i.desc}</p>
             <a
