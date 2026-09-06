@@ -54,6 +54,15 @@ const g = globalThis as unknown as {
   __vpsmStock?: { t: number; data: StockData };
 };
 
+/** 剥离公告中的原站推广链接，避免为他人导流 */
+function cleanTicker(t: string): string {
+  return t
+    .split(" ⏎ ")
+    .map((s) => s.replace(/ *·? *购买[:：]\s*https?:\/\/\S+/g, "").trim())
+    .filter((s) => s.length > 8)
+    .join(" ⏎ ");
+}
+
 /**
  * 服务端获取采集数据：优先取 GitHub 上的最新版（实例内缓存 30 分钟），
  * 失败时回退到构建时打包的本地副本。
@@ -66,6 +75,7 @@ export async function getStockData(): Promise<StockData | null> {
     if (r.ok) {
       const j = (await r.json()) as StockData;
       if (j?.providers?.length) {
+        j.ticker = cleanTicker(j.ticker);
         g.__vpsmStock = { t: Date.now(), data: j };
         return j;
       }
@@ -73,18 +83,16 @@ export async function getStockData(): Promise<StockData | null> {
   } catch {
     /* 回退到本地 */
   }
-  return localData as StockData;
+  const local = localData as StockData;
+  local.ticker = cleanTicker(local.ticker);
+  return local;
 }
 
-/** 从 ticker 文本解析公告分段（剥离原站推广链接，避免为他人导流） */
+/** 从 ticker 文本解析公告分段 */
 export function parseTicker(ticker: string): { segments: string[] } {
   const segments = ticker
     .split(" ⏎ ")
-    .map((s) =>
-      s
-        .replace(/ *·? *购买[:：]\s*https?:\/\/\S+/g, "")
-        .trim(),
-    )
+    .map((s) => s.trim())
     .filter((s) => s.length > 8);
   return { segments };
 }
