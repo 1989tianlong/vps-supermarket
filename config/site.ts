@@ -27,8 +27,8 @@ export const site = {
    * 4. enabled 改为 true —— 全站广告位与 /ads.txt 自动生效
    */
   adsense: {
-    enabled: false,
-    publisherId: "", // 例: "ca-pub-1234567890123456"
+    enabled: true,
+    publisherId: "ca-pub-4365436188346298",
     slots: {
       header: "", // 页头横幅广告单元 ID（数字）
       leftRail: "",
