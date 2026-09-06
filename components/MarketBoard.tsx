@@ -23,6 +23,7 @@ import {
   Store,
   Timer,
 } from "lucide-react";
+import { site } from "@/config/site";
 import type { StockData, StockProduct, StockProvider } from "@/lib/stock";
 import { vendorLink } from "@/lib/vendor-links";
 import { monthlyEquivalent } from "@/lib/format";
@@ -219,13 +220,7 @@ function ProductRow({
 }
 
 /* ── 主看板 ───────────────────────────────────────────── */
-export function MarketBoard({
-  data,
-  deepLinks = {},
-}: {
-  data: StockData | null;
-  deepLinks?: Record<string, string>;
-}) {
+export function MarketBoard({ data }: { data: StockData | null }) {
   const router = useRouter();
   const [vendorQuery, setVendorQuery] = useState("");
   const [showBlacklist, setShowBlacklist] = useState(false);
@@ -239,7 +234,16 @@ export function MarketBoard({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
-  const linkFor = (provider: string) => deepLinks[provider] ?? vendorLink(provider);
+  // 优先使用本站自己的联盟链接，其次厂商官网（绝不使用采集来源的推广链接）
+  const ownAff = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const i of site.affiliate?.items ?? []) {
+      if (!i.url.includes("YOUR_AFF_ID")) m.set(i.brand, i.url);
+    }
+    return m;
+  }, []);
+  const linkFor = (provider: string) =>
+    ownAff.get(provider) ?? vendorLink(provider);
 
   const providers: StockProvider[] = useMemo(
     () => (data?.providers ?? []).filter((p) => p.name && !p.name.includes("黑名单")),

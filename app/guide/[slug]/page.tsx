@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { guideArticles, getGuideArticle } from "@/lib/guide";
+import { site } from "@/config/site";
+import { Tag } from "lucide-react";
 
 export function generateStaticParams() {
   return guideArticles.map((a) => ({ slug: a.slug }));
@@ -63,6 +65,33 @@ export default async function GuideArticlePage({
               ))}
             </section>
           ))}
+        </div>
+
+        {/* 相关优惠（本站联盟推广） */}
+        <div className="mt-10 rounded-xl border border-primary/30 bg-primary-soft p-5">
+          <b className="flex items-center gap-1.5 text-[14px]">
+            <Tag size={14} className="text-primary" />
+            文中提到的厂商实时优惠
+          </b>
+          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+            {(site.affiliate?.items ?? [])
+              .filter((i) => !i.url.includes("YOUR_AFF_ID"))
+              .map((i) => (
+                <a
+                  key={i.url}
+                  href={i.url}
+                  target="_blank"
+                  rel="nofollow sponsored noopener noreferrer"
+                  className="rounded-lg border border-line bg-card p-3.5 transition-colors hover:border-primary"
+                >
+                  <b className="text-[13px]">{i.brand}</b>
+                  <p className="mt-1 text-[11.5px] leading-relaxed text-muted">{i.desc}</p>
+                  <span className="mt-1.5 inline-block text-[12px] font-semibold text-primary">
+                    {i.cta} →
+                  </span>
+                </a>
+              ))}
+          </div>
         </div>
 
         <div className="mt-10 rounded-xl border border-line bg-card p-5">

@@ -76,17 +76,15 @@ export async function getStockData(): Promise<StockData | null> {
   return localData as StockData;
 }
 
-/** 从 ticker 文本解析厂商深层购买链接与公告分段 */
-export function parseTicker(ticker: string): { segments: string[]; deepLinks: Record<string, string> } {
+/** 从 ticker 文本解析公告分段（剥离原站推广链接，避免为他人导流） */
+export function parseTicker(ticker: string): { segments: string[] } {
   const segments = ticker
     .split(" ⏎ ")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const deepLinks: Record<string, string> = {};
-  for (const seg of segments) {
-    const url = seg.match(/购买[:：]\s*(https?:\/\/\S+)/)?.[1];
-    const provider = seg.match(/厂商[:：]\s*([^\s|·｜]+)/)?.[1];
-    if (url && provider) deepLinks[provider] = deepLinks[provider] ?? url;
-  }
-  return { segments, deepLinks };
+    .map((s) =>
+      s
+        .replace(/ *·? *购买[:：]\s*https?:\/\/\S+/g, "")
+        .trim(),
+    )
+    .filter((s) => s.length > 8);
+  return { segments };
 }

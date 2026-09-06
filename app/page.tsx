@@ -10,7 +10,7 @@ export const revalidate = 1800;
 
 export default async function Home() {
   const data = await getStockData();
-  const { segments, deepLinks } = data ? parseTicker(data.ticker) : { segments: [], deepLinks: {} };
+  const { segments } = data ? parseTicker(data.ticker) : { segments: [] };
 
   return (
     <div className="min-h-screen">
@@ -23,7 +23,7 @@ export default async function Home() {
         <Ticker segments={segments} />
         <AdSlot slot="header" label="页头横幅 728×90 / 响应式" h={76} />
 
-        <MarketBoard data={data} deepLinks={deepLinks} />
+        <MarketBoard data={data} />
 
         <AdSlot slot="footer" label="页脚横幅 970×90" h={76} />
 
