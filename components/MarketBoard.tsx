@@ -26,6 +26,7 @@ import {
 import type { StockData, StockProduct, StockProvider } from "@/lib/stock";
 import { vendorLink } from "@/lib/vendor-links";
 import { monthlyEquivalent } from "@/lib/format";
+import { AdSlot } from "./AdSlot";
 import { SettingsModal } from "./SettingsModal";
 import { toast } from "./Toast";
 
@@ -520,7 +521,10 @@ export function MarketBoard({
             </div>
           )}
         </div>
-      </aside>
+          <div className="border-t border-line p-3">
+            <AdSlot slot="leftRail" label="侧栏推广 300×250" h={140} />
+          </div>
+        </aside>
 
       {/* ── 产品库存 ── */}
       <main className="min-w-0 overflow-hidden rounded-2xl border border-line bg-card">

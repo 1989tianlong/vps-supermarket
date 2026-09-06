@@ -37,6 +37,30 @@ export const site = {
       footer: "",
     },
   },
+  /**
+   * 联盟直投推广位（原生卡片样式，比横幅广告转化更高）。
+   * 操作：注册联盟 → 把 url 里的 YOUR_AFF_ID 换成你的联盟 ID → enabled 改 true → 重新部署。
+   * 注意：url 里还留着 YOUR_AFF_ID 时不会上线（避免挂死链）。
+   */
+  affiliate: {
+    enabled: false,
+    items: [
+      {
+        slot: "leftRail",
+        brand: "搬瓦工 BandwagonHost",
+        desc: "老牌 CN2 GIA 优化线路，三网回程好，稳定性口碑佳",
+        url: "https://bandwagonhost.com/aff.php?aff=YOUR_AFF_ID",
+        cta: "查看优惠",
+      },
+      {
+        slot: "rightRail",
+        brand: "RackNerd",
+        desc: "超低价年付 KVM，轻量应用性价比之选",
+        url: "https://www.racknerd.com/clients/aff.php?aff=YOUR_AFF_ID",
+        cta: "查看优惠",
+      },
+    ],
+  },
   /** 兼容旧字段：联盟自定义 HTML 代码（优先级高于 AdSense 单元）
    *  示例（把 YOUR_AFF_ID 换成你的联盟 ID）：
    *  header: `<a href="https://bandwagonhost.com/aff.php?aff=YOUR_AFF_ID" target="_blank" rel="nofollow noopener"><img src="https://banner图地址" width="728" height="90" alt="ad"></a>`

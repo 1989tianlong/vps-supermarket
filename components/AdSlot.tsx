@@ -57,6 +57,37 @@ export function AdSlot({
     );
   }
 
+  // 联盟直投原生卡片：url 里还带 YOUR_AFF_ID 占位符时不上线（防死链）
+  const affItems = (site.affiliate?.items ?? []).filter(
+    (i) => i.slot === slot && site.affiliate.enabled && !i.url.includes("YOUR_AFF_ID"),
+  );
+  if (affItems.length) {
+    return (
+      <div className={`space-y-2.5 ${className}`} data-ad-slot={slot}>
+        {affItems.map((i) => (
+          <div
+            key={i.url}
+            className="relative overflow-hidden rounded-xl border border-line bg-card p-4 transition-colors hover:border-primary/50"
+          >
+            <span className="absolute right-2.5 top-2 text-[9.5px] uppercase tracking-wider text-muted/60">
+              广告
+            </span>
+            <b className="text-[13.5px]">{i.brand}</b>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-muted">{i.desc}</p>
+            <a
+              href={i.url}
+              target="_blank"
+              rel="nofollow sponsored noopener noreferrer"
+              className="mt-2.5 inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-fg transition-opacity hover:opacity-85"
+            >
+              {i.cta} <Megaphone size={11} />
+            </a>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div
       className={`flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-line bg-card/60 px-3 text-muted ${className}`}

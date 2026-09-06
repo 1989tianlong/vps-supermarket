@@ -22,11 +22,8 @@ export default async function Home() {
 
         <MarketBoard data={data} deepLinks={deepLinks} />
 
-        {/* 两侧推广栏（宽屏） */}
-        <div className="grid gap-3 sm:grid-cols-2 xl:hidden">
-          <AdSlot slot="leftRail" label="竖栏推广 300×250" h={160} />
-          <AdSlot slot="rightRail" label="竖栏推广 300×140" h={160} />
-        </div>
+        {/* 看板下方推广条 */}
+        <AdSlot slot="rightRail" label="推广位 970×90 / 响应式" h={80} />
 
         <AdSlot slot="footer" label="页脚横幅 970×90" h={76} />
 
