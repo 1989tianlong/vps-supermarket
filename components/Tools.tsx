@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Gauge,
@@ -117,8 +117,13 @@ function PriceCalc() {
 
 /** Unix 时间戳 ⇄ 日期 */
 function TimestampCalc() {
-  const [ts, setTs] = useState(String(Math.floor(Date.now() / 1000)));
-  const [iso, setIso] = useState(new Date().toISOString());
+  const [ts, setTs] = useState("");
+  const [iso, setIso] = useState("");
+  // 初始值仅在客户端挂载后填充，避免 SSR(UTC) 与本地时区水合不一致
+  useEffect(() => {
+    setTs(String(Math.floor(Date.now() / 1000)));
+    setIso(new Date().toISOString());
+  }, []);
   const n = parseInt(ts, 10);
 
   const fromTs = (v: string) => {
@@ -194,7 +199,7 @@ export function Tools() {
             本站采集的 VPS 库存数据开放为免费 JSON 接口，个人开发者可直接调用（请合理控制频率，缓存 30 分钟）。
           </p>
           <div className="num mt-3 overflow-x-auto rounded-lg bg-soft px-3 py-2 text-[12px] text-primary">
-            GET {typeof window !== "undefined" ? window.location.origin : ""}/api/stock
+            GET /api/stock
           </div>
           <div className="num mt-2 overflow-x-auto rounded-lg bg-soft px-3 py-2 text-[12px] text-muted">
             curl -s https://vps-supermarket.vercel.app/api/stock | jq &apos;.stock.QQG.products[0]&apos;

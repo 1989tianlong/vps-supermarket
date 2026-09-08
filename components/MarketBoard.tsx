@@ -233,6 +233,7 @@ export function MarketBoard({ data }: { data: StockData | null }) {
   const [favs, setFavs] = useState<string[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   // 优先使用本站自己的联盟链接，其次厂商官网（绝不使用采集来源的推广链接）
   const ownAff = useMemo(() => {
@@ -270,6 +271,7 @@ export function MarketBoard({ data }: { data: StockData | null }) {
     try {
       setFavs(JSON.parse(localStorage.getItem("vpsm-favs") ?? "[]"));
     } catch {}
+    setMounted(true);
   }, []);
 
   const entry: Entry | undefined = data?.stock?.[providerName];
@@ -360,7 +362,7 @@ export function MarketBoard({ data }: { data: StockData | null }) {
           { label: "其中有货", value: String(kpi.inStock), suffix: "个" },
           {
             label: "数据更新",
-            value: kpi.fetchedAt
+            value: mounted && kpi.fetchedAt
               ? new Date(kpi.fetchedAt).toLocaleString("zh-CN", {
                   hour12: false,
                   month: "numeric",
@@ -368,7 +370,7 @@ export function MarketBoard({ data }: { data: StockData | null }) {
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : "—",
+              : "…",
             suffix: "",
           },
         ].map((k) => (
@@ -540,7 +542,10 @@ export function MarketBoard({ data }: { data: StockData | null }) {
               </span>
             </h2>
             <span className="num inline-flex items-center gap-1 text-[11px] text-muted">
-              <Timer size={11} /> 数据更新 {new Date(data.fetchedAt).toLocaleString("zh-CN", { hour12: false })}
+              <Timer size={11} /> 数据更新{" "}
+              {mounted && data.fetchedAt
+                ? new Date(data.fetchedAt).toLocaleString("zh-CN", { hour12: false })
+                : "…"}
             </span>
             <div className="ml-auto flex items-center gap-2">
               <button
