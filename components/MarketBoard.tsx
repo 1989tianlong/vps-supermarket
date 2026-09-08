@@ -416,6 +416,11 @@ export function MarketBoard({ data }: { data: StockData | null }) {
         ))}
       </div>
 
+      {/* 窄屏推广横条（≥1280px 由侧栏卡片展示，此处不重复） */}
+      <div className="mb-3 xl:hidden">
+        <AdSlot slot="vendorPanel" variant="strip" label="厂商推广" />
+      </div>
+
       <div className="grid items-start gap-4 xl:grid-cols-[250px,minmax(0,1fr)]">
       {/* ── 厂商榜 ── */}
       <aside className="hidden h-fit flex-col overflow-hidden rounded-2xl border border-line bg-card xl:sticky xl:top-[72px] xl:flex">
