@@ -385,7 +385,7 @@ export function MarketBoard({ data }: { data: StockData | null }) {
       </div>
 
       {/* 移动端厂商横滑条 */}
-      <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1 lg:hidden">
+      <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1 xl:hidden">
         <button
           onClick={() => setShowBlacklist((s) => !s)}
           className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
@@ -418,7 +418,7 @@ export function MarketBoard({ data }: { data: StockData | null }) {
 
       <div className="grid items-start gap-4 xl:grid-cols-[250px,minmax(0,1fr)]">
       {/* ── 厂商榜 ── */}
-      <aside className="hidden h-fit flex-col overflow-hidden rounded-2xl border border-line bg-card lg:sticky lg:top-[72px] lg:flex">
+      <aside className="hidden h-fit flex-col overflow-hidden rounded-2xl border border-line bg-card xl:sticky xl:top-[72px] xl:flex">
         <div className="flex items-center gap-2 border-b border-line px-3.5 py-2.5">
           <Store size={14} className="text-primary" />
           <b className="text-[13px]">厂商热度榜</b>
@@ -447,7 +447,7 @@ export function MarketBoard({ data }: { data: StockData | null }) {
             <ShieldAlert size={13} /> 黑名单（{data?.blacklist?.length ?? 0}）
           </button>
         </div>
-        <div className="max-h-[56vh] min-h-[200px] space-y-0.5 overflow-y-auto px-2 pb-2 lg:max-h-[calc(100vh-300px)]">
+        <div className="max-h-[56vh] min-h-[200px] space-y-0.5 overflow-y-auto px-2 pb-2 xl:max-h-[calc(100vh-300px)]">
           {showBlacklist
             ? (data?.blacklist ?? []).map((b) => (
                 <button
