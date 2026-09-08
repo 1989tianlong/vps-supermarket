@@ -21,7 +21,6 @@ export default async function Home() {
         <AdSlot slot="top" variant="strip" label="首页顶部横条" />
 
         <Ticker segments={segments} />
-        <AdSlot slot="header" label="页头横幅 728×90 / 响应式" h={76} />
 
         <MarketBoard data={data} />
 

@@ -488,7 +488,7 @@ export function MarketBoard({ data }: { data: StockData | null }) {
                   setProductQuery("");
                   setTagFilter("");
                 }}
-                className={`w-full rounded-lg px-2 py-1.5 text-left transition-colors ${
+                className={`w-full rounded-lg px-2 py-1 text-left transition-colors ${
                   active
                     ? "border-l-2 border-primary bg-accent"
                     : "border-l-2 border-transparent hover:bg-soft"

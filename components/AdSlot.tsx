@@ -61,22 +61,26 @@ export function AdSlot({
       );
     }
     return (
-      <div className={`space-y-2.5 ${className}`} data-ad-slot={slot}>
+      <div className={`space-y-2 ${className}`} data-ad-slot={slot}>
         {affItems.map((i) => (
           <div
             key={i.url}
-            className="overflow-hidden rounded-xl border border-primary/40 bg-card p-4 transition-colors hover:border-primary/60"
+            className="rounded-xl border border-primary/40 bg-card p-2.5 transition-colors hover:border-primary/60"
           >
-            <b className="text-[13.5px]">{i.brand}</b>
-            <p className="mt-1 text-[11.5px] leading-relaxed text-muted">{i.desc}</p>
-            <a
-              href={i.url}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              className="mt-2.5 inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-fg transition-opacity hover:opacity-85"
-            >
-              {i.cta} <Megaphone size={11} />
-            </a>
+            <div className="flex items-center gap-2">
+              <b className="min-w-0 flex-1 truncate text-[12.5px]">{i.brand}</b>
+              <a
+                href={i.url}
+                target="_blank"
+                rel="nofollow sponsored noopener noreferrer"
+                className="shrink-0 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-fg transition-opacity hover:opacity-85"
+              >
+                {i.cta}
+              </a>
+            </div>
+            <p className="mt-1 truncate text-[10.5px] text-muted" title={i.desc}>
+              {i.desc}
+            </p>
           </div>
         ))}
       </div>
