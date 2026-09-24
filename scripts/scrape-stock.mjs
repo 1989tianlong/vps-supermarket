@@ -139,37 +139,12 @@ async function main() {
   });
   await page.waitForTimeout(1000);
 
-  /** 滚动产品表收集全部行（去重；兼容窗口滚动与容器滚动） */
+  /** 采集当前产品表：逐页翻页提取（站点已改为分页模式） */
   async function collectRows() {
     const sig = new Set();
     const rows = [];
-    const scrollInfo = await page.evaluate(() => {
-      let el = document.querySelector("table")?.parentElement;
-      while (el && el !== document.body) {
-        const s = getComputedStyle(el);
-        if (/(auto|scroll)/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 50)
-          return { mode: "container" };
-        el = el.parentElement;
-      }
-      return { mode: "window" };
-    });
-    let stagnant = 0;
-    for (let y = 0; y < 200000 && stagnant < 3; y += 400) {
-      if (scrollInfo.mode === "container") {
-        await page.evaluate((top) => {
-          let el = document.querySelector("table")?.parentElement;
-          while (el && el !== document.body) {
-            const s = getComputedStyle(el);
-            if (/(auto|scroll)/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 50) break;
-            el = el.parentElement;
-          }
-          if (el && el !== document.body) el.scrollTop = top;
-          else window.scrollTo(0, top);
-        }, y);
-      } else {
-        await page.evaluate((top) => window.scrollTo(0, top), y);
-      }
-      await page.waitForTimeout(170);
+    for (let pageNo = 0; pageNo < 20; pageNo++) {
+      await page.waitForTimeout(300);
       const { rows: seen } = await page.evaluate(EXTRACT_PAGE);
       let fresh = 0;
       for (const r of seen) {
@@ -178,10 +153,22 @@ async function main() {
         rows.push(r);
         fresh++;
       }
-      stagnant = fresh > 0 ? 0 : stagnant + 1;
-      if (sig.size > 5000) break;
+      // 尝试点击“下一页”（lucide chevron-right 图标按钮）
+      const hasNext = await page.evaluate(() => {
+        const cands = [...document.querySelectorAll("button")].filter(
+          (b) =>
+            b.offsetParent !== null &&
+            !b.disabled &&
+            b.querySelector("svg.lucide-chevron-right"),
+        );
+        const next = cands[cands.length - 1];
+        if (!next) return false;
+        next.click();
+        return true;
+      });
+      if (!hasNext || fresh === 0) break;
+      await page.waitForTimeout(900);
     }
-    await page.evaluate((top) => window.scrollTo(0, top), 0);
     return rows;
   }
 
