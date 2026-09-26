@@ -17,7 +17,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(__dirname, "..", "data", "stock-data.json");
 const BASE = process.env.SCRAPE_BASE ?? "https://panel.yins.win";
 
-/** 在浏览器里读取当前表格可见行（含虚拟滚动） */
+/** 在浏览器里读取当前表格可见行。
+ * 2026-09 源站改版：产品表为 11 列（购买/价格/产品/机房/CPU/内存/硬盘/流量/带宽/IP/状态），
+ * 热度在购买列（td0），价格周期下拉在 td1，产品名+分组徽章在 td2，机房在 td3，
+ * 规格拆成独立列 td4-td9，状态在 td10；不再显示上次探测时间。 */
 const EXTRACT_PAGE = () => {
   const table = document.querySelector("table");
   if (!table) return { rows: [] };
@@ -25,54 +28,62 @@ const EXTRACT_PAGE = () => {
   for (const tr of table.querySelectorAll("tbody tr")) {
     if (tr.querySelector(".animate-pulse")) continue;
     const tds = tr.querySelectorAll("td");
-    if (tds.length < 8) continue;
+    if (tds.length < 11) continue;
     const get = (i) => tds[i];
-    // 热度
+    // 热度（购买列）
     const heatEl = get(0).querySelector('span[title^="累计"]');
     const heatTitle = heatEl?.getAttribute("title") ?? "";
-    const heatCount = Number((heatTitle.match(/累计\s*(\d+)/) || [])[1] ?? 0);
-    // 产品名 + 规格芯片
-    const nameEl = get(1).querySelector(".break-words");
-    const chipsBox = get(1).querySelector("[title]");
-    const chips = [...get(1).querySelectorAll(".bg-muted\\/50, [class*='bg-muted']")].map(
-      (s) => s.textContent.trim(),
+    const heatCount = Number(
+      (heatTitle.match(/累计\s*([\d,]+)/) || [])[1]?.replace(/,/g, "") ?? 0,
     );
     // 价格周期
-    const cycles = [...get(2).querySelectorAll("select option")].map((o) => ({
+    const cycles = [...get(1).querySelectorAll("select option")].map((o) => ({
       value: o.getAttribute("value") ?? "",
       label: o.textContent.trim(),
     }));
-    // 规格摘要
-    const specSummary = [...get(3).querySelectorAll("span")]
-      .map((s) => s.textContent.trim())
-      .filter((t) => t && t !== "·")
-      .join(" · ");
-    // 机房（下拉或文本）
-    const locSel = get(4).querySelector("select");
+    // 产品名 + 描述 + 分组徽章（优先按列 class 定位，防列序变动）
+    const tdName = tr.querySelector("td.stock-col-name") ?? get(2);
+    const nameEl = tdName.querySelector(".break-words");
+    const specFull = tdName.getAttribute("title") ?? "";
+    const chips = [
+      ...new Set(
+        [...tdName.querySelectorAll("[title]")]
+          .map((e) => (e.getAttribute("title") || "").trim())
+          .filter((t) => t && t !== specFull),
+      ),
+    ];
+    const group = chips.join(" · ");
+    // 机房（下拉或文本，优先按列 class 定位）
+    const tdLoc = tr.querySelector("td.stock-col-loc") ?? get(3);
+    const locSel = tdLoc.querySelector("select");
     const locations = locSel
-      ? [...locSel.options].map((o) => o.value)
-      : [get(4).textContent.trim()];
-    // 分组
-    const groupEl = get(5).querySelector("[title], span");
-    const group = groupEl?.getAttribute("title") || groupEl?.textContent.trim() || "";
+      ? [...locSel.options].map((o) => o.value || o.textContent.trim())
+      : [tdLoc.textContent.trim().split("\n")[0].trim()].filter(Boolean);
+    // 规格列 CPU/内存/硬盘/流量/带宽/IP
+    const specParts = [];
+    for (let i = 4; i <= 9; i++) {
+      const el = get(i).querySelector("[title], span") ?? get(i);
+      const t = (el.getAttribute?.("title") || el.textContent || "").trim();
+      if (t && t !== "—") specParts.push(t);
+    }
+    const specSummary = specParts.join(" · ");
     // 状态
-    const statusEl = get(6).querySelector("[title], span");
-    const inStock = /有货/.test(statusEl?.getAttribute("title") ?? statusEl?.textContent ?? "");
-    // 上次探测
-    const probeEl = get(7).querySelector("span[title]");
+    const statusEl = get(10).querySelector("[title], span");
+    const statusText = statusEl?.getAttribute("title") ?? statusEl?.textContent.trim() ?? "";
+    const inStock = /有货/.test(statusText);
     out.push({
       key: `${nameEl?.textContent.trim()}|${cycles[0]?.label ?? ""}|${group}`,
       name: nameEl?.textContent.trim() ?? "",
-      specFull: chipsBox?.getAttribute("title") ?? "",
+      specFull,
       chips,
       cycles,
       specSummary,
       locations,
       group,
       inStock,
-      statusText: statusEl?.getAttribute("title") ?? statusEl?.textContent.trim() ?? "",
-      lastProbeText: probeEl?.textContent.trim() ?? "",
-      lastProbeFull: probeEl?.getAttribute("title") ?? "",
+      statusText: statusText || get(10).textContent.trim(),
+      lastProbeText: "",
+      lastProbeFull: "",
       heatCount,
       heatTitle,
     });
@@ -139,11 +150,12 @@ async function main() {
   });
   await page.waitForTimeout(1000);
 
-  /** 采集当前产品表：逐页翻页提取（站点已改为分页模式） */
+  /** 采集当前产品表：点击「显示更多」加载全部行（源站 2026-09 已从分页改为增量加载） */
   async function collectRows() {
     const sig = new Set();
     const rows = [];
-    for (let pageNo = 0; pageNo < 20; pageNo++) {
+    let stagnant = 0;
+    for (let i = 0; i < 40; i++) {
       await page.waitForTimeout(300);
       const { rows: seen } = await page.evaluate(EXTRACT_PAGE);
       let fresh = 0;
@@ -153,20 +165,32 @@ async function main() {
         rows.push(r);
         fresh++;
       }
-      // 尝试点击“下一页”（lucide chevron-right 图标按钮）
-      const hasNext = await page.evaluate(() => {
-        const cands = [...document.querySelectorAll("button")].filter(
+      if (fresh > 0) stagnant = 0;
+      else stagnant++;
+      if (stagnant >= 3) break;
+      // 点击「显示更多（剩余 N 款）」
+      const hasMore = await page.evaluate(() => {
+        const btn = [...document.querySelectorAll("button")].find(
           (b) =>
             b.offsetParent !== null &&
             !b.disabled &&
-            b.querySelector("svg.lucide-chevron-right"),
+            /显示更多|加载更多|查看更多/.test(b.textContent || ""),
         );
-        const next = cands[cands.length - 1];
-        if (!next) return false;
-        next.click();
+        if (!btn) return false;
+        btn.click();
         return true;
       });
-      if (!hasNext || fresh === 0) break;
+      if (hasMore) {
+        await page.waitForTimeout(900);
+        continue;
+      }
+      // 无按钮时滚动表格容器兜底（可能存在滚动加载）
+      await page.evaluate(() => {
+        const table = document.querySelector("table");
+        let el = table;
+        while (el && !/(auto|scroll)/.test(getComputedStyle(el).overflowY)) el = el.parentElement;
+        if (el) el.scrollTop = el.scrollHeight;
+      });
       await page.waitForTimeout(900);
     }
     return rows;
