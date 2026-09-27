@@ -18,57 +18,80 @@ const OUT = path.join(__dirname, "..", "data", "stock-data.json");
 const BASE = process.env.SCRAPE_BASE ?? "https://panel.yins.win";
 
 /** 在浏览器里读取当前表格可见行。
- * 2026-09 源站改版：产品表为 11 列（购买/价格/产品/机房/CPU/内存/硬盘/流量/带宽/IP/状态），
- * 热度在购买列（td0），价格周期下拉在 td1，产品名+分组徽章在 td2，机房在 td3，
- * 规格拆成独立列 td4-td9，状态在 td10；不再显示上次探测时间。 */
+ * 2026-09 源站改版：产品表按厂商动态增减列（基础 11 列：购买/价格/产品/机房/CPU/内存/
+ * 硬盘/流量/带宽/IP/状态，缺某维数据的厂商会少列，如搬瓦工无 IP 列仅 10 列），
+ * 因此先读表头建立「列名 → 下标」映射，再逐行按语义提取；
+ * 热度在购买列，价格周期下拉在价格列，产品名+分组徽章在产品列，机房在机房列，
+ * 规格拆成 CPU/内存/硬盘/流量/带宽/IP 独立列，状态在状态列；不再显示上次探测时间。 */
 const EXTRACT_PAGE = () => {
   const table = document.querySelector("table");
   if (!table) return { rows: [] };
+  const headers = [...table.querySelectorAll("th")].map((th) => (th.textContent || "").trim());
+  const idx = {};
+  headers.forEach((h, i) => {
+    if (!(h in idx)) idx[h] = i;
+  });
+  const col = (names) => {
+    for (const n of names) if (idx[n] !== undefined) return idx[n];
+    return -1;
+  };
+  const iBuy = col(["购买"]);
+  const iPrice = col(["价格"]);
+  const iName = col(["产品"]);
+  const iLoc = col(["机房/线路", "机房"]);
+  const iStatus = col(["状态"]);
+  const specCols = ["CPU", "内存", "硬盘", "流量", "带宽", "IP"]
+    .map((n) => idx[n])
+    .filter((i) => i !== undefined && i >= 0);
+  const maxCol = Math.max(iBuy, iPrice, iName, iLoc, iStatus, ...specCols);
   const out = [];
   for (const tr of table.querySelectorAll("tbody tr")) {
     if (tr.querySelector(".animate-pulse")) continue;
     const tds = tr.querySelectorAll("td");
-    if (tds.length < 11) continue;
-    const get = (i) => tds[i];
+    if (tds.length <= maxCol) continue;
+    const get = (i) => (i >= 0 ? tds[i] : null);
     // 热度（购买列）
-    const heatEl = get(0).querySelector('span[title^="累计"]');
+    const heatEl = iBuy >= 0 ? get(iBuy).querySelector('span[title^="累计"]') : null;
     const heatTitle = heatEl?.getAttribute("title") ?? "";
     const heatCount = Number(
       (heatTitle.match(/累计\s*([\d,]+)/) || [])[1]?.replace(/,/g, "") ?? 0,
     );
     // 价格周期
-    const cycles = [...get(1).querySelectorAll("select option")].map((o) => ({
-      value: o.getAttribute("value") ?? "",
-      label: o.textContent.trim(),
-    }));
+    const cycles = iPrice >= 0
+      ? [...get(iPrice).querySelectorAll("select option")].map((o) => ({
+          value: o.getAttribute("value") ?? "",
+          label: o.textContent.trim(),
+        }))
+      : [];
     // 产品名 + 描述 + 分组徽章（优先按列 class 定位，防列序变动）
-    const tdName = tr.querySelector("td.stock-col-name") ?? get(2);
-    const nameEl = tdName.querySelector(".break-words");
-    const specFull = tdName.getAttribute("title") ?? "";
+    const tdName = tr.querySelector("td.stock-col-name") ?? get(iName);
+    const nameEl = tdName?.querySelector(".break-words");
+    const specFull = tdName?.getAttribute("title") ?? "";
     const chips = [
       ...new Set(
-        [...tdName.querySelectorAll("[title]")]
+        [...(tdName?.querySelectorAll("[title]") ?? [])]
           .map((e) => (e.getAttribute("title") || "").trim())
           .filter((t) => t && t !== specFull),
       ),
     ];
     const group = chips.join(" · ");
     // 机房（下拉或文本，优先按列 class 定位）
-    const tdLoc = tr.querySelector("td.stock-col-loc") ?? get(3);
-    const locSel = tdLoc.querySelector("select");
+    const tdLoc = tr.querySelector("td.stock-col-loc") ?? get(iLoc);
+    const locSel = tdLoc?.querySelector("select");
     const locations = locSel
       ? [...locSel.options].map((o) => o.value || o.textContent.trim())
-      : [tdLoc.textContent.trim().split("\n")[0].trim()].filter(Boolean);
-    // 规格列 CPU/内存/硬盘/流量/带宽/IP
+      : [tdLoc?.textContent.trim().split("\n")[0].trim()].filter(Boolean);
+    // 规格列 CPU/内存/硬盘/流量/带宽/IP（存在哪列取哪列）
     const specParts = [];
-    for (let i = 4; i <= 9; i++) {
+    for (const i of specCols) {
       const el = get(i).querySelector("[title], span") ?? get(i);
       const t = (el.getAttribute?.("title") || el.textContent || "").trim();
       if (t && t !== "—") specParts.push(t);
     }
     const specSummary = specParts.join(" · ");
     // 状态
-    const statusEl = get(10).querySelector("[title], span");
+    const tdStatus = get(iStatus);
+    const statusEl = tdStatus?.querySelector("[title], span");
     const statusText = statusEl?.getAttribute("title") ?? statusEl?.textContent.trim() ?? "";
     const inStock = /有货/.test(statusText);
     out.push({
@@ -81,7 +104,7 @@ const EXTRACT_PAGE = () => {
       locations,
       group,
       inStock,
-      statusText: statusText || get(10).textContent.trim(),
+      statusText: statusText || tdStatus?.textContent.trim() || "",
       lastProbeText: "",
       lastProbeFull: "",
       heatCount,
@@ -236,16 +259,18 @@ async function main() {
           console.log(`  ✗ ${name}: 按钮未找到`);
           return;
         }
-        // 等表格渲染出非骨架行
-        for (let i = 0; i < 24; i++) {
+        // 等表格骨架屏全部消失（源站后端 2026-09 起变慢，单厂商可能 15s+，最长等 30 秒）
+        for (let i = 0; i < 60; i++) {
           await page.waitForTimeout(500);
           const ready = await page.evaluate(() => {
-            const tr = document.querySelector("table tbody tr");
-            return tr && !tr.querySelector(".animate-pulse");
+            const table = document.querySelector("table");
+            if (!table) return false;
+            if (table.querySelector(".animate-pulse")) return false;
+            return !!table.querySelector("tbody tr");
           });
           if (ready) break;
         }
-        await page.waitForTimeout(600);
+        await page.waitForTimeout(800);
         const [rows, meta] = [await collectRows(), await collectMeta()];
         stock[name] = { tags: meta.tags, products: rows };
         console.log(`  ✓ ${name}: ${rows.length} 行`);
@@ -280,6 +305,7 @@ async function main() {
         visited.add(key);
         fresh = true;
         await cb(v);
+        await page.waitForTimeout(300);
       }
       stagnant = fresh ? 0 : stagnant + 1;
     }
