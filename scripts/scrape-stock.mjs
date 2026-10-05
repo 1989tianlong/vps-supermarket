@@ -148,8 +148,19 @@ async function main() {
   const page = await ctx.newPage();
 
   console.log("→ 打开", BASE + "/stock");
-  await page.goto(BASE + "/stock", { waitUntil: "domcontentloaded", timeout: 60000 });
-  await page.waitForFunction(() => document.querySelectorAll("button span.truncate").length > 3, null, { timeout: 60000 });
+  // 源站偶发首屏渲染慢（厂商列表可能 >60s 才出现），失败自动重开页面重试
+  let loaded = false;
+  for (let attempt = 1; attempt <= 3 && !loaded; attempt++) {
+    try {
+      await page.goto(BASE + "/stock", { waitUntil: "domcontentloaded", timeout: 60000 });
+      await page.waitForFunction(() => document.querySelectorAll("button span.truncate").length > 3, null, { timeout: 60000 });
+      loaded = true;
+    } catch (e) {
+      console.log(`  … 首屏加载第 ${attempt} 次超时: ${String(e).slice(0, 60)}`);
+      if (attempt === 3) throw e;
+      await page.waitForTimeout(3000);
+    }
+  }
   await page.waitForFunction(
     () => {
       const tr = document.querySelector("table tbody tr");
